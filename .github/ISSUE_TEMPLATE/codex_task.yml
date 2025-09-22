@@ -1,0 +1,42 @@
+name: 🤖 Codex Task
+description: Template d'issue pour l'agent Codex
+title: "[umbra-security-service] Brief description"
+labels: ["role:Codex", "service:SECURITY"]
+body:
+  - type: input
+    id: objective
+    attributes:
+      label: "Objectif"
+      description: "Description claire de ce qui doit être accompli"
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: "User Story"
+      description: "Contexte utilisateur"
+      placeholder: "En tant que..., je veux..., afin de..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acceptance_criteria
+    attributes:
+      label: "Critères d'Acceptation"
+      options:
+        - label: "Fonctionnalité implémentée"
+        - label: "Tests >80% couverture"
+        - label: "Documentation mise à jour"
+        - label: "CI verte"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priorité"
+      options:
+        - "P1 - Critique"
+        - "P2 - Importante"
+        - "P3 - Amélioration"
+    validations:
+      required: true

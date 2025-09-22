@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: umbra_security_service
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: umbra_security_service_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov
+
+    - name: Lint
+      run: |
+        flake8 src/ tests/
+        black --check src/ tests/
+
+    - name: Test
+      env:
+        DATABASE_URL: postgresql://umbra_security_service:test_password@localhost:5432/umbra_security_service_test
+        REDIS_URL: redis://localhost:6379/0
+        FLASK_ENV: testing
+      run: |
+        pytest tests/ -v --cov=src --cov-report=term-missing --cov-fail-under=80
+
+    - name: Build Docker
+      run: |
+        docker build -t umbra-security-service:${{ github.sha }} .
