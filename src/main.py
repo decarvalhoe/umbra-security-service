@@ -9,6 +9,7 @@ from flask_cors import CORS
 from sqlalchemy.pool import StaticPool
 
 from src.extensions import db
+from src.routes import anomalies_bp, auth_bp
 
 load_dotenv()
 
@@ -61,7 +62,9 @@ def create_app() -> Flask:
             200,
         )
 
-    # TODO: Ajouter les routes spécifiques au service
+    # Register service blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(anomalies_bp)
 
     return app
 
